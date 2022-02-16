@@ -1,0 +1,49 @@
+version: "3.8"
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.14.1
+    networks:
+      basket-network:
+        ipv4_address: 192.168.181.8
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.14.1
+    networks:
+      basket-network:
+        ipv4_address: 192.168.181.9
+  basketdb:
+    image: mongo
+    networks:
+      basket-network:
+        ipv4_address: 192.168.181.10
+  rabbitmq:
+    image: rabbitmq:3.8.14-management
+    networks:
+      basket-network:
+        ipv4_address: 192.168.181.11
+  basket.api:
+    image: basket_api_image
+    networks:
+      basket-network:
+        ipv4_address: 192.168.181.12
+    build:
+      context: .
+      dockerfile: Services/Basket.API/Dockerfile
+  gateway.api:
+    image: gateway_api_image
+    networks:
+      basket-network:
+        ipv4_address: 192.168.181.13
+    build:
+      context: .
+      dockerfile: Gateway/Dockerfile
+
+
+volumes:
+  basketdb_volume:
+  elkdata:
+networks:
+  basket-network:
+    ipam:
+      driver: default
+      config:
+        - subnet: "192.168.181.1/24"

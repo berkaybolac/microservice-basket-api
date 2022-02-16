@@ -1,0 +1,18 @@
+FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim as build
+EXPOSE 80
+WORKDIR /app
+
+COPY Services/Basket.API/*.csproj  Services/Basket.API/
+
+COPY Services/Basket.Domain/*.csproj Services/Basket.Domain/
+
+COPY Services/Basket.Infrastructure/*.csproj Services/Basket.Infrastructure/
+
+RUN dotnet restore Services/Basket.API/*.csproj
+COPY . .
+
+RUN dotnet publish Services/Basket.API/*.csproj -c Release -o out
+FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim as runtime
+WORKDIR /app
+COPY --from=build /app/out .
+ENTRYPOINT [ "dotnet","Basket.API.dll"]
